@@ -123,7 +123,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-ov.open{opacity:1}
 .demo-phone{position:relative;height:min(92vh,calc(46vw * 1686 / 830));aspect-ratio:830/1686;transform:translateY(24px) scale(.96);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .demo-ov.open .demo-phone{transform:none}
-.demo-screen{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;overflow:hidden;background:#000}
+.demo-screen{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;overflow:hidden;clip-path:inset(0 round 13.5% / 6.6%);isolation:isolate;background:#000}
 .demo-screen iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;display:block;background:#000}
 .demo-bezel{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .demo-ph{position:absolute;inset:0;display:grid;place-items:center}
@@ -131,15 +131,17 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-ph p{position:relative;margin:0;opacity:.85;animation:demoPulse 2.4s ease-in-out infinite;font-family:var(--display);font-weight:700;font-size:clamp(16px,1.6vw,28px);line-height:1.15;text-align:center;color:var(--fg)}
 .demo-x{position:fixed;top:2.2vh;right:5vw;z-index:2;width:44px;height:44px;padding:10px;border:0;border-radius:50%;background:#1b1b1b;color:#fff;cursor:pointer;transition:background .2s ease,color .2s ease}
 .demo-x svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.demo-snd{position:fixed;top:2.2vh;left:5vw;z-index:2;width:44px;height:44px;margin:0;padding:9px;border-radius:50%;background:#1b1b1b}
 .demo-x:hover{background:var(--accent);color:#111}
 .demo-x:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 html.demo-open,html.demo-open body{overflow:hidden}
 @media (max-aspect-ratio:1/1){
   /* on a phone the mockup would be a phone inside a phone: the prototype takes the whole screen */
   .demo-phone{height:100%;width:100%;aspect-ratio:auto;transform:translateY(24px)}
-  .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0}   /* a thin bar on top for the close button */
+  .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0;clip-path:none}   /* a thin bar on top for the close button */
   .demo-bezel{display:none}
   .demo-x{top:8px;right:10px;width:40px;height:40px}
+  .demo-snd{top:8px;left:10px;width:40px;height:40px;padding:8px}
   .demo-ph p{font-size:24px}
 }
 /* hover on the phone: the screen dims and a "try it" button appears */
@@ -228,6 +230,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
 </div>
 
 <div class="demo-ov" id="demoOv" role="dialog" aria-modal="true" aria-label="Демо приложения" hidden>
+  <button class="snd demo-snd" type="button" aria-pressed="false" aria-label="Включить звук"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path class="w1" d="M15.2 9.2a4 4 0 0 1 0 5.6"/><path class="w2" d="M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/><path class="x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>
   <button class="demo-x" id="demoX" type="button" aria-label="Закрыть демо"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
   <div class="demo-phone">
     <div class="demo-screen" id="demoScreen">
@@ -1232,7 +1235,7 @@ const SND=(()=>{
   }
   function stop(){if(!ctx)return;E.out.gain.cancelScheduledValues(ctx.currentTime);E.out.gain.setTargetAtTime(0,ctx.currentTime,.25);
     setTimeout(()=>{if(!on&&ctx)ctx.suspend()},1200)}
-  function set(v){on=v;ls.set('phyl-sound',v?'1':'0');if(v)start();else stop();btn&&sync()}
+  function set(v){on=v;ls.set('phyl-sound',v?'1':'0');if(v)start();else stop();sync()}
   // UI hooks — silent while the sound is off
   let lastHover=0;
   const api={
@@ -1244,17 +1247,17 @@ const SND=(()=>{
     toggle(){set(!on)},get on(){return on},build
   };
   /* header button */
-  const btn=document.getElementById('snd');
-  function sync(){btn.setAttribute('aria-pressed',on?'true':'false');btn.setAttribute('aria-label',on?'Выключить звук':'Включить звук');btn.classList.toggle('on',on)}
-  if(btn){btn.addEventListener('click',()=>{api.toggle();if(on)setTimeout(()=>E&&E.click(),60)});sync()}
+  const btns=[...document.querySelectorAll('.snd')];   // header + demo overlay
+  function sync(){btns.forEach(b=>{b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Выключить звук':'Включить звук');b.classList.toggle('on',on)})}
+  btns.forEach(b=>b.addEventListener('click',()=>{api.toggle();if(on)setTimeout(()=>E&&E.click(),60)}));sync();
   // remembered "on" resumes on the first interaction (browsers block audio before it)
   if(ls.get('phyl-sound')==='1'){const once=()=>{removeEventListener('pointerdown',once,true);removeEventListener('keydown',once,true);if(!on)set(true)};
     addEventListener('pointerdown',once,true);addEventListener('keydown',once,true)}
   // hover / click sounds on every interactive thing
   const SEL='button, a, .phone, [role=tab]';
   let hovEl=null;
-  document.addEventListener('pointerover',e=>{const el=e.target.closest&&e.target.closest(SEL);if(el&&el!==hovEl&&el!==btn){hovEl=el;api.hover()}else if(!el)hovEl=null},{passive:true});
-  document.addEventListener('click',e=>{const el=e.target.closest&&e.target.closest(SEL);if(el&&el!==btn)api.click()},{passive:true});
+  document.addEventListener('pointerover',e=>{const el=e.target.closest&&e.target.closest(SEL);if(el&&el!==hovEl&&!el.classList.contains('snd')){hovEl=el;api.hover()}else if(!el)hovEl=null},{passive:true});
+  document.addEventListener('click',e=>{const el=e.target.closest&&e.target.closest(SEL);if(el&&!el.classList.contains('snd'))api.click()},{passive:true});
   return api;
 })();
 
@@ -1284,14 +1287,14 @@ const DEMO_URL='app/index.html';   // the character-creation prototype (single-f
     return'https://www.figma.com/embed?embed_host=share&hide-ui=1&url='+encodeURIComponent(DEMO_URL);return DEMO_URL}
   function open(){
     last=document.activeElement;ov.hidden=false;document.documentElement.classList.add('demo-open');
-    if(src()){if(!frame){frame=document.createElement('iframe');frame.title='Прототип приложения';frame.allow='fullscreen; clipboard-write';frame.src=src();scr.appendChild(frame)}ph.hidden=true;fit()}
+    if(src()){if(!frame){frame=document.createElement('iframe');frame.title='Прототип приложения';frame.allow='fullscreen; clipboard-write';frame.src=src();scr.appendChild(frame);frame.addEventListener('load',fit)}ph.hidden=true;fit()}
     else ph.hidden=false;
-    window.demoOpen=true;if(spirit&&!spiritPaused)spirit.pause();requestAnimationFrame(()=>{ov.classList.add('open');fit()});x.focus();
+    window.demoOpen=true;fit();if(spirit&&!spiritPaused)spirit.pause();requestAnimationFrame(()=>{ov.classList.add('open');fit()});x.focus();
   }
   // the app is laid out for a 375-px-wide phone: render the iframe at that width and scale it into the mockup's screen
-  function fit(){if(!frame)return;const r=scr.getBoundingClientRect();
+  function fit(){if(!frame)return;const r={width:scr.offsetWidth,height:scr.offsetHeight};   // layout size: ignores the opening scale animation
     if(matchMedia('(max-aspect-ratio: 1/1)').matches){Object.assign(frame.style,{width:'100%',height:'100%',transform:'none'});return}
-    const k=r.width/375;Object.assign(frame.style,{width:'375px',height:(r.height/k)+'px',transform:`scale(${k})`,transformOrigin:'0 0'})}
+    const k=r.width/375;Object.assign(frame.style,{width:'375px',height:Math.ceil(r.height/k)+'px',transform:`scale(${k})`,transformOrigin:'0 0'})}
   addEventListener('resize',fit);
   function close(){ov.classList.remove('open');document.documentElement.classList.remove('demo-open');
     window.demoOpen=false;if(spirit&&!spiritPaused)spirit.resume();setTimeout(()=>{ov.hidden=true},350);if(last&&last.focus)last.focus()}
