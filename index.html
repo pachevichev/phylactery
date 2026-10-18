@@ -124,7 +124,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-phone{position:relative;height:min(92vh,calc(46vw * 1686 / 830));aspect-ratio:830/1686;transform:translateY(24px) scale(.96);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .demo-ov.open .demo-phone{transform:none}
 .demo-screen{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;overflow:hidden;background:#000}
-.demo-screen iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
+.demo-screen iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;display:block;background:#000}
 .demo-bezel{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .demo-ph{position:absolute;inset:0;display:grid;place-items:center}
 @keyframes demoPulse{50%{opacity:.35}}
@@ -137,9 +137,9 @@ html.demo-open,html.demo-open body{overflow:hidden}
 @media (max-aspect-ratio:1/1){
   /* on a phone the mockup would be a phone inside a phone: the prototype takes the whole screen */
   .demo-phone{height:100%;width:100%;aspect-ratio:auto;transform:translateY(24px)}
-  .demo-screen{inset:0;width:100%;height:100%;border-radius:0}
+  .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0}   /* a thin bar on top for the close button */
   .demo-bezel{display:none}
-  .demo-x{top:12px;right:12px;background:rgba(27,27,27,.85)}
+  .demo-x{top:8px;right:10px;width:40px;height:40px}
   .demo-ph p{font-size:24px}
 }
 /* hover on the phone: the screen dims and a "try it" button appears */
@@ -1260,6 +1260,7 @@ const SND=(()=>{
 
 // ---------- frame loop ----------
 function tick(t){
+  if(window.demoOpen){requestAnimationFrame(tick);return}   // the landing sleeps under the demo overlay
   if(ready){
     cur+=(target-cur)*0.18;
     if(Math.abs(target-cur)<0.002)cur=target;
@@ -1275,7 +1276,7 @@ function tick(t){
 
 /* ---------- demo overlay ---------- */
 // put the prototype link here (Figma: share → "Copy link to prototype"; any https URL works) — empty = placeholder
-const DEMO_URL='';
+const DEMO_URL='app/index.html';   // the character-creation prototype (single-file build from the app handoff)
 (function(){
   const ov=document.getElementById('demoOv'),scr=document.getElementById('demoScreen'),ph=document.getElementById('demoPh'),x=document.getElementById('demoX');
   let last=null,frame=null;
@@ -1283,12 +1284,17 @@ const DEMO_URL='';
     return'https://www.figma.com/embed?embed_host=share&hide-ui=1&url='+encodeURIComponent(DEMO_URL);return DEMO_URL}
   function open(){
     last=document.activeElement;ov.hidden=false;document.documentElement.classList.add('demo-open');
-    if(src()){if(!frame){frame=document.createElement('iframe');frame.title='Прототип приложения';frame.allow='fullscreen; clipboard-write';frame.src=src();scr.appendChild(frame)}ph.hidden=true}
+    if(src()){if(!frame){frame=document.createElement('iframe');frame.title='Прототип приложения';frame.allow='fullscreen; clipboard-write';frame.src=src();scr.appendChild(frame)}ph.hidden=true;fit()}
     else ph.hidden=false;
-    requestAnimationFrame(()=>ov.classList.add('open'));x.focus();
+    window.demoOpen=true;if(spirit&&!spiritPaused)spirit.pause();requestAnimationFrame(()=>{ov.classList.add('open');fit()});x.focus();
   }
+  // the app is laid out for a 375-px-wide phone: render the iframe at that width and scale it into the mockup's screen
+  function fit(){if(!frame)return;const r=scr.getBoundingClientRect();
+    if(matchMedia('(max-aspect-ratio: 1/1)').matches){Object.assign(frame.style,{width:'100%',height:'100%',transform:'none'});return}
+    const k=r.width/375;Object.assign(frame.style,{width:'375px',height:(r.height/k)+'px',transform:`scale(${k})`,transformOrigin:'0 0'})}
+  addEventListener('resize',fit);
   function close(){ov.classList.remove('open');document.documentElement.classList.remove('demo-open');
-    setTimeout(()=>{ov.hidden=true},350);if(last&&last.focus)last.focus()}
+    window.demoOpen=false;if(spirit&&!spiritPaused)spirit.resume();setTimeout(()=>{ov.hidden=true},350);if(last&&last.focus)last.focus()}
   document.querySelectorAll('.demo').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();open()}));
   x.addEventListener('click',close);
   ov.addEventListener('click',e=>{if(e.target===ov)close()});
