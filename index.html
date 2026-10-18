@@ -121,6 +121,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-ov{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#000;opacity:0;transition:opacity .35s ease}
 .demo-ov[hidden]{display:none}
 .demo-ov.open{opacity:1}
+.demo-ov:focus{outline:none}
 .demo-phone{position:relative;height:min(92vh,calc(46vw * 1686 / 830));aspect-ratio:830/1686;transform:translateY(24px) scale(.96);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .demo-ov.open .demo-phone{transform:none}
 /* the screen sits ON the bezel image with its own clean rounded edge (the png's inner edge is ragged and shows on white app screens) */
@@ -130,11 +131,12 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-ph{position:absolute;inset:0;display:grid;place-items:center}
 @keyframes demoPulse{50%{opacity:.35}}
 .demo-ph p{position:relative;margin:0;opacity:.85;animation:demoPulse 2.4s ease-in-out infinite;font-family:var(--display);font-weight:700;font-size:clamp(16px,1.6vw,28px);line-height:1.15;text-align:center;color:var(--fg)}
-.demo-x{position:fixed;top:2.2vh;right:5vw;z-index:2;width:44px;height:44px;padding:10px;border:0;border-radius:50%;background:#1b1b1b;color:#fff;cursor:pointer;transition:background .2s ease,color .2s ease}
+.demo-x{position:fixed;top:2.2vh;right:5vw;z-index:2;width:40px;height:40px;padding:8px;border:0;background:none;color:#fff;cursor:pointer;transition:color .2s ease}
 .demo-x svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-.demo-snd{position:fixed;top:2.2vh;left:5vw;z-index:2;width:44px;height:44px;margin:0;padding:9px;border-radius:50%;background:#1b1b1b}
-.demo-x:hover{background:var(--accent);color:#111}
-.demo-x:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.demo-snd{position:fixed;top:2.2vh;left:5vw;z-index:2;width:44px;height:44px;margin:0;padding:3px;background:none;color:#fff}
+.demo-snd:hover,.demo-snd.on:hover{color:var(--accent)}
+.demo-x:hover{color:var(--accent)}
+.demo-x:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 html.demo-open,html.demo-open body{overflow:hidden}
 @media (max-aspect-ratio:1/1){
   /* on a phone the mockup would be a phone inside a phone: the prototype takes the whole screen */
@@ -142,7 +144,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
   .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0;clip-path:none}   /* a thin bar on top for the close button */
   .demo-bezel{display:none}
   .demo-x{top:8px;right:10px;width:40px;height:40px}
-  .demo-snd{top:8px;left:10px;width:40px;height:40px;padding:8px}
+  .demo-snd{top:8px;left:10px;width:40px;height:40px;padding:5px}
   .demo-ph p{font-size:24px}
 }
 /* hover on the phone: the screen dims and a "try it" button appears */
@@ -230,7 +232,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
   </div>
 </div>
 
-<div class="demo-ov" id="demoOv" role="dialog" aria-modal="true" aria-label="Демо приложения" hidden>
+<div class="demo-ov" id="demoOv" tabindex="-1" role="dialog" aria-modal="true" aria-label="Демо приложения" hidden>
   <button class="snd demo-snd" type="button" aria-pressed="false" aria-label="Включить звук"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path class="w1" d="M15.2 9.2a4 4 0 0 1 0 5.6"/><path class="w2" d="M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/><path class="x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>
   <button class="demo-x" id="demoX" type="button" aria-label="Закрыть демо"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
   <div class="demo-phone">
@@ -1290,7 +1292,7 @@ const DEMO_URL='app/index.html';   // the character-creation prototype (single-f
     last=document.activeElement;ov.hidden=false;document.documentElement.classList.add('demo-open');
     if(src()){if(!frame){frame=document.createElement('iframe');frame.title='Прототип приложения';frame.allow='fullscreen; clipboard-write';frame.src=src();scr.appendChild(frame);frame.addEventListener('load',fit)}ph.hidden=true;fit()}
     else ph.hidden=false;
-    window.demoOpen=true;fit();if(spirit&&!spiritPaused)spirit.pause();requestAnimationFrame(()=>{ov.classList.add('open');fit()});x.focus();
+    window.demoOpen=true;fit();if(spirit&&!spiritPaused)spirit.pause();requestAnimationFrame(()=>{ov.classList.add('open');fit()});ov.focus({preventScroll:true});
   }
   // the app is laid out for a 375-px-wide phone: render the iframe at that width and scale it into the mockup's screen
   function fit(){if(!frame)return;const r={width:scr.offsetWidth,height:scr.offsetHeight};   // layout size: ignores the opening scale animation
