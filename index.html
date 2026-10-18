@@ -1253,9 +1253,12 @@ const SND=(()=>{
   const btns=[...document.querySelectorAll('.snd')];   // header + demo overlay
   function sync(){btns.forEach(b=>{b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Выключить звук':'Включить звук');b.classList.toggle('on',on)})}
   btns.forEach(b=>b.addEventListener('click',()=>{api.toggle();if(on)setTimeout(()=>E&&E.click(),60)}));sync();
-  // remembered "on" resumes on the first interaction (browsers block audio before it)
-  if(ls.get('phyl-sound')==='1'){const once=()=>{removeEventListener('pointerdown',once,true);removeEventListener('keydown',once,true);if(!on)set(true)};
-    addEventListener('pointerdown',once,true);addEventListener('keydown',once,true)}
+  // sound is ON by default (unless the visitor switched it off before). Browsers only let audio start after the first
+  // click / tap / key press, so the icon shows "on" right away and the music fades in on that first interaction.
+  if(ls.get('phyl-sound')!=='0'){on=true;sync();
+    const EV=['pointerdown','touchend','click','keydown'];
+    const once=()=>{EV.forEach(e=>removeEventListener(e,once,true));if(on)start()};
+    EV.forEach(e=>addEventListener(e,once,true));}
   // hover / click sounds on every interactive thing
   const SEL='button, a, .phone, [role=tab]';
   let hovEl=null;
