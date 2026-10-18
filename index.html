@@ -1247,7 +1247,7 @@ const SND=(()=>{
     step(i){if(on&&E)E.step(i)},
     whoosh(){if(on&&E)E.whoosh()},
     scene(k){if(E)E.scene(k)},
-    toggle(){set(!on)},get on(){return on},build
+    toggle(){set(!on)},get on(){return on},get state(){return ctx?ctx.state:'none'},build
   };
   /* header button */
   const btns=[...document.querySelectorAll('.snd')];   // header + demo overlay
@@ -1256,9 +1256,16 @@ const SND=(()=>{
   // sound is ON by default (unless the visitor switched it off before). Browsers only let audio start after the first
   // click / tap / key press, so the icon shows "on" right away and the music fades in on that first interaction.
   if(ls.get('phyl-sound')!=='0'){on=true;sync();
-    const EV=['pointerdown','touchend','click','keydown'];
-    const once=()=>{EV.forEach(e=>removeEventListener(e,once,true));if(on)start()};
-    EV.forEach(e=>addEventListener(e,once,true));}
+    // Safari only counts some events as a gesture (click / touchend / keydown), Chrome others (pointerdown / mousedown),
+    // so keep trying on every kind until the audio context is really running; also try right away — browsers that
+    // allow autoplay for this site will simply start playing.
+    const EV=['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click','keydown'];
+    const done=()=>EV.forEach(e=>removeEventListener(e,unlock,true));
+    function unlock(){if(!on){done();return}start();if(!ctx)return;
+      if(ctx.state==='running')done();else ctx.resume().then(()=>{if(ctx.state==='running')done()}).catch(()=>{})}
+    EV.forEach(e=>addEventListener(e,unlock,true));
+    try{unlock()}catch(e){}
+  }
   // hover / click sounds on every interactive thing
   const SEL='button, a, .phone, [role=tab]';
   let hovEl=null;
