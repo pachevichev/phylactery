@@ -75,7 +75,15 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .names{position:absolute;inset:0;pointer-events:none;opacity:.16}   /* background layer: behind the heads and the phone */
 .nm{position:absolute;top:0;margin:0;font-family:var(--label);font-weight:500;font-size:clamp(15px,1.6vw,32px);line-height:1.3;letter-spacing:.01em;
   color:var(--fg);white-space:nowrap;will-change:transform}
-.stage-c .center{position:absolute;left:50%;top:12vh;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3.5vh}
+.stage-c .center{position:absolute;right:14vw;top:9vh;display:flex;flex-direction:column;align-items:center}
+/* the three steps as big words on the left: the active one fills letter by letter with the scroll; click = jump to it */
+.words{position:absolute;left:12.3vw;top:8vh;display:flex;flex-direction:column;align-items:flex-start;pointer-events:auto}
+.words button{font-family:var(--display);font-weight:700;font-size:clamp(40px,min(5.8vw,10.5vh),140px);line-height:1.12;letter-spacing:.01em;
+  color:var(--dim);background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;white-space:nowrap}
+.words .ch{transition:color .12s linear}
+.words .ch.f{color:var(--fg)}
+.words button:hover .ch:not(.f){color:#5a5a5a}
+.words button:focus-visible{outline:2px solid var(--accent);outline-offset:.1em;border-radius:.08em}
 /* step chips: the accent pill slides under the active one */
 .chips{position:relative;display:flex;padding:.35em;border-radius:999px;background:#1b1b1b;pointer-events:auto;
   font-family:var(--label);font-weight:500;font-size:clamp(13px,1.05vw,20px)}
@@ -157,7 +165,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
 .phone:hover .shade,.phone:focus-within .shade{opacity:1}
 .phone:hover .try,.phone:focus-within .try{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
 .phone .try:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.phone{position:relative;height:min(72vh,calc(34vw * 1686 / 830));aspect-ratio:830/1686}
+.phone{position:relative;height:min(84vh,calc(30vw * 1686 / 830));aspect-ratio:830/1686}
 .phone .screen{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;overflow:hidden;background:#000}
 .phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s ease}
 .phone video.on{opacity:1}
@@ -180,12 +188,11 @@ html.demo-open,html.demo-open body{overflow:hidden}
   /* graveyard */
   .awake{font-size:clamp(30px,10vw,64px)}
   /* mockup: phone centred, chips under it, four heads as a quiet row at the bottom */
-  .stage-c .center{top:9vh;gap:2.4vh}
-  .phone{height:min(60vh,calc(84vw * 1686 / 830))}
+  .words{left:16px;top:9vh}.words button{font-size:clamp(28px,10vw,64px)}
+  .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(12vh + 33vw)}
+  .phone{height:min(calc(84vh - 33vw),calc(84vw * 1686 / 830))}
   .chips{font-size:12px}
   .chips button{padding:.8em 1.1em}
-  .stage-c .hslot{top:auto;bottom:2vh;width:23vw;height:13vh}
-  #hd1{left:1vw!important}#hd2{left:26vw!important}#hd3{left:51vw!important}#hd4{left:76vw!important}
   .phone .try{font-size:14px}
   .phone.show .shade{opacity:1}.phone.show .try{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
   /* finale */
@@ -259,10 +266,10 @@ html.demo-open,html.demo-open body{overflow:hidden}
 </main>
 <div class="stage-c" id="stageC">
 
-  <canvas class="heads" id="heads" aria-hidden="true"></canvas>
   <canvas class="dz" id="dz" aria-hidden="true"></canvas>
-  <div class="hslot" id="hd1" style="left:1.5vw"></div><div class="hslot" id="hd2" style="left:18.5vw"></div>
-  <div class="hslot" id="hd3" style="left:63.5vw"></div><div class="hslot" id="hd4" style="left:80.5vw"></div>
+  <nav class="words" id="chips" aria-label="Шаги">
+    <button type="button" aria-current="true">BINDING</button><button type="button" aria-current="false">CREATING</button><button type="button" aria-current="false">KEEPING</button>
+  </nav>
 
   <div class="center">
   <div class="phone">
@@ -274,10 +281,6 @@ html.demo-open,html.demo-open body{overflow:hidden}
     <img class="bezel" src="phone_frame.png" alt="" width="830" height="1686">
     <div class="shade"></div>
     <button class="try demo" type="button">TRY THE DEMO</button>
-  </div>
-  <div class="chips" id="chips" role="tablist" aria-label="Шаги">
-    <span class="pill" aria-hidden="true"></span>
-    <button type="button" role="tab" aria-selected="true">BINDING</button><button type="button" role="tab" aria-selected="false">CREATING</button><button type="button" role="tab" aria-selected="false">KEEPING</button>
   </div>
   </div>
 </div>
@@ -330,7 +333,13 @@ const GAP=.3, SHIFT=4+GAP;   // GAP: empty black run between the backpack sectio
 const phone=document.querySelector('.phone');
 const stepVid=[...document.querySelectorAll('.phone video')];
 phone.addEventListener('click',e=>{if(matchMedia('(hover: none)').matches&&!e.target.closest('.try'))phone.classList.toggle('show')});
-const chipBtns=[...document.querySelectorAll('#chips button')], pill=document.querySelector('#chips .pill');
+const chipBtns=[...document.querySelectorAll('#chips button')];
+// each step word fills over its own stretch of scroll (u); click jumps to the moment it is fully written
+const WR=[[3.6,5.45],[5.7,7.25],[7.5,9.0]];
+const wordChars=chipBtns.map(b=>{const t=b.textContent;b.textContent='';b.setAttribute('aria-label',t);
+  return [...t].map(ch=>{const s=document.createElement('span');s.className='ch';s.textContent=ch;b.append(s);return s})});
+chipBtns.forEach((b,k)=>b.addEventListener('click',()=>scrollTo({top:endA+(WR[k][1]+.05+SHIFT+CG)*innerHeight,behavior:reduce?'auto':'smooth'})));
+function fillWords(u){wordChars.forEach((chs,k)=>{const n=Math.round(clamp((u-WR[k][0])/(WR[k][1]-WR[k][0]))*chs.length);chs.forEach((s,i)=>s.classList.toggle('f',i<n))})}
 const nameEls=[];
 const stageD=document.getElementById('stageD'), stageE=document.getElementById('stageE'), stageF=document.getElementById('stageF');
 const CG=.14;                                  // extra black between the graveyard and the phone section
@@ -342,10 +351,7 @@ function loadSpirit(){
   sc.onload=()=>PhylacterySpirit.mountSpirit(stageD,{progress:()=>spiritP,tune:matchMedia('(max-aspect-ratio: 1/1)').matches?{res:420,frontFill:.62,topFill:.34}:{}}).then(sp=>{spirit=sp;spiritPaused=false;onScroll()}).catch(e=>console.error('spirit failed',e));
   document.head.appendChild(sc);
 }
-const STEP_AT=[4.2,6.4,8.6];                  // u to scroll to when a chip is clicked (inside that step's stretch)
-chipBtns.forEach((b,k)=>b.addEventListener('click',()=>scrollTo({top:endA+(STEP_AT[k]+SHIFT+CG)*innerHeight,behavior:reduce?'auto':'smooth'})));
-function placePill(){const b=chipBtns.find(x=>x.getAttribute('aria-selected')==='true')||chipBtns[0];
-  pill.style.width=b.offsetWidth+'px';pill.style.transform=`translateX(${b.offsetLeft}px)`}
+function placePill(){}
 function moveNames(u){
   // cards keep drifting up while the section is on screen and simply leave through the top edge
   const d=Math.max(0,u-3.6)*.85, H=innerHeight;
@@ -357,7 +363,7 @@ function setStep(i){
   if(i===step)return; step=i;
   if(i<0){stepVid.forEach(v2=>v2.pause());return}     // section hidden / phone gone: keep the last step on screen, just pause
   const shown=i===3?2:Math.max(i,0);
-  chipBtns.forEach((b,k)=>b.setAttribute('aria-selected',k===shown?'true':'false'));placePill();if(i>=0)SND.step(shown);
+  chipBtns.forEach((b,k)=>b.setAttribute('aria-current',k===shown?'true':'false'));if(i>=0)SND.step(shown);
   stepVid.forEach((v2,k)=>{
     const on=k===shown; v2.classList.toggle('on',on);
     if(on&&i>=0&&i<3){v2.currentTime=0;v2.play().catch(()=>{})} else v2.pause();
@@ -443,7 +449,7 @@ function onScroll(){
   if(u>6.5)loadSpirit();
   if(spirit){if(d>.001&&spiritPaused){spirit.resume();spiritPaused=false}else if(d<=.001&&!spiritPaused){spirit.pause();spiritPaused=true}}
   setStep(c>0&&u<9.9 ? (u<5.7?0:u<7.5?1:2) : -1);
-  moveNames(u);hOn=c>0;hBox.hidden=!hOn;
+  fillWords(u);
 
 }
 addEventListener('scroll',onScroll,{passive:true});
@@ -971,7 +977,7 @@ void main(){
 const HS={dark:1.5,radius:.45,depth:.06,detail:0,shadow:.9,height:.47,intensity:2.4,ambient:.04,gloss:0,col:[1,.97,.92]};
 const HSRC=[['heads/h1_color.jpg','heads/h1_depth.png','hd1'],['heads/h3_color.jpg','heads/h3_depth.png','hd2'],
             ['heads/h4_color.jpg','heads/h4_depth.png','hd3'],['heads/h5_color.jpg','heads/h5_depth.png','hd4']];
-const hcv=document.getElementById('heads'),hgl=hcv.getContext('webgl2',{antialias:false,premultipliedAlpha:false});
+const hcv=document.getElementById('heads')||document.createElement('canvas'),hgl=hcv.getContext('webgl2',{antialias:false,premultipliedAlpha:false});
 const HU={},hlight={x:-1,y:-1,tx:0,ty:0};let hobjs=[],hReady=false,hOn=false,hIdle=1;
 async function initHeads(){
   if(!hgl)return;const g=hgl;
@@ -1025,7 +1031,7 @@ function drawHeads(t){
     g.drawArrays(g.TRIANGLES,0,3);
   });
 }
-initHeads().catch(e=>console.error('heads failed',e));
+if(document.getElementById('heads'))initHeads().catch(e=>console.error('heads failed',e));   // heads removed from the page for now
 
 const hBox={hidden:true};   // lighting panel retired: values above are final
 
