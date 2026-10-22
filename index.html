@@ -95,6 +95,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .stage-e{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(20px,3.2vh,44px);visibility:hidden;pointer-events:none}
 /* accent pill used on the final line and on the mockup hover */
 .demo{font-family:var(--display);font-weight:700;font-size:clamp(14px,1.5vw,26px);letter-spacing:.02em;color:#111;background:var(--accent);border:0;border-radius:999px;padding:1em 1.8em;cursor:pointer;white-space:nowrap;pointer-events:auto;transition:transform .2s ease,filter .2s ease}
+.mob-demo{display:none}
 .demo:hover{filter:brightness(1.08);transform:scale(1.03)}
 .demo:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .allin{margin:0;text-align:center;font-family:var(--display);font-weight:700;color:var(--fg);line-height:1;letter-spacing:.01em}
@@ -152,9 +153,15 @@ html.demo-open,html.demo-open body{overflow:hidden}
   .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0;clip-path:none}   /* a thin bar on top for the close button */
   .demo-bezel{display:none}
   .demo-x{top:8px;right:10px;width:40px;height:40px}
-  .demo-snd{top:8px;left:10px;width:40px;height:40px;padding:5px}
+  .demo-snd{top:6px;left:8px;width:46px;height:46px;padding:2px}
   .demo-ph p{font-size:24px}
 }
+/* loading: one thin line that fills while the videos, frames and images arrive */
+.ld{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#000;transition:opacity .7s ease,visibility 0s linear .7s}
+.ld i{display:block;width:min(240px,50vw);height:1px;background:#262626;position:relative;overflow:hidden}
+.ld i::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:0 50%;transform:scaleX(var(--p,0));transition:transform .35s ease}
+.ld.done{opacity:0;visibility:hidden}
+html.loading,html.loading body{overflow:hidden}
 /* hover on the phone: the screen dims and a "try it" button appears */
 .phone{pointer-events:auto}
 .phone .shade{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;background:rgba(0,0,0,.55);
@@ -175,7 +182,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
   /* ---------- mobile layout ---------- */
   .hdr{padding:12px 16px 14px;gap:14px;background:linear-gradient(#000 55%,rgba(0,0,0,0))}
   .secnav button{font-size:13px;padding:.4em .1em}
-  .snd{width:32px;height:32px;margin-left:-6px}
+  .snd{width:42px;height:42px;margin-left:-8px;padding:2px}
   /* hero: the pendant on top, the copy scrolls up over a fade */
   .media{left:50%;top:9vh;transform:translateX(-50%);width:min(86vw,42vh)}
   .stage-a::after{content:"";position:absolute;inset:auto 0 0 0;height:50vh;background:linear-gradient(transparent,var(--bg) 14%)}
@@ -190,7 +197,9 @@ html.demo-open,html.demo-open body{overflow:hidden}
   /* mockup: phone centred, chips under it, four heads as a quiet row at the bottom */
   .words{left:16px;top:9vh}.words button{font-size:clamp(28px,10vw,64px)}
   .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(12vh + 33vw)}
-  .phone{height:min(calc(84vh - 33vw),calc(84vw * 1686 / 830))}
+  .phone{height:min(calc(84vh - 33vw - 78px),calc(84vw * 1686 / 830))}
+  .mob-demo{display:block;margin-top:2.2vh;font-size:15px;padding:1em 2em}
+  .phone .shade,.phone .try{display:none}
   .chips{font-size:12px}
   .chips button{padding:.8em 1.1em}
   .phone .try{font-size:14px}
@@ -251,6 +260,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
     <img class="demo-bezel" src="phone_frame.png" alt="" width="830" height="1686">
   </div>
 </div>
+<div class="ld" id="ld" role="progressbar" aria-label="Загрузка" aria-valuemin="0" aria-valuemax="100"><i></i></div>
 <header class="hdr">
 <button class="snd" id="snd" type="button" aria-pressed="false" aria-label="Включить звук">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path class="w1" d="M15.2 9.2a4 4 0 0 1 0 5.6"/><path class="w2" d="M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/><path class="x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
@@ -282,6 +292,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
     <div class="shade"></div>
     <button class="try demo" type="button">TRY THE DEMO</button>
   </div>
+  <button class="demo mob-demo" type="button">TRY THE DEMO</button>
   </div>
 </div>
 <div class="stage-n" id="stageN">
@@ -332,7 +343,6 @@ const GAP=.3, SHIFT=4+GAP;   // GAP: empty black run between the backpack sectio
 //   // scroll length (viewport heights) inserted for the backpack section; later scenes run on u-SHIFT
 const phone=document.querySelector('.phone');
 const stepVid=[...document.querySelectorAll('.phone video')];
-phone.addEventListener('click',e=>{if(matchMedia('(hover: none)').matches&&!e.target.closest('.try'))phone.classList.toggle('show')});
 const chipBtns=[...document.querySelectorAll('#chips button')];
 // each step word fills over its own stretch of scroll (u); click jumps to the moment it is fully written
 const WR=[[3.6,5.45],[5.7,7.25],[7.5,9.0]];
@@ -375,7 +385,12 @@ let target=0, cur=0, dur=0, ready=false, endA=1, gVis=0;
 // ---------- scene 1 video ----------
 // H.264 MP4 for Safari/Chrome/Edge; all-intra VP9 WebM only for browsers without H.264
 const file=v.canPlayType('video/mp4; codecs="avc1.640028"')?'pendant.mp4':'pendant.webm';
-fetch(file).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{v.src=URL.createObjectURL(b)}).catch(()=>{v.src=file});
+let pendP=0;   // download progress of the pendant clip, for the loading line
+fetch(file).then(async r=>{if(!r.ok)throw 0;const n=+r.headers.get('content-length')||0;
+  if(!n||!r.body)return r.blob();const rd=r.body.getReader(),parts=[];let got=0;
+  for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;pendP=got/n}
+  return new Blob(parts,{type:'video/'+file.split('.').pop()})})
+ .then(b=>{pendP=1;v.src=URL.createObjectURL(b)}).catch(()=>{pendP=1;v.src=file});
 v.addEventListener('loadedmetadata',()=>{dur=v.duration;v.pause();ready=true;onScroll();cur=target;v.currentTime=cur});
 v.addEventListener('seeked',()=>media.classList.add('ready'),{once:true});
 
@@ -439,6 +454,7 @@ function onScroll(){
   phone.style.opacity=1-pf;
   dzShow=0;
   document.getElementById('chips').style.opacity=1-ss(9.15,9.7,u);
+  document.querySelector('.mob-demo').style.opacity=1-pf;document.querySelector('.mob-demo').style.pointerEvents=pf>.5?'none':'';
   // the big line and the credits run as one continuous column: no hold in between, the credits follow right behind
   slide(stageE,11.3,11.3);
   slide(stageF,12.3,1e9);                      // credits rise as the big line leaves; the spirit stays
@@ -1322,6 +1338,49 @@ const DEMO_URL='app/index.html';   // the character-creation prototype (single-f
   ov.addEventListener('click',e=>{if(e.target===ov)close()});
   addEventListener('keydown',e=>{if(e.key==='Escape'&&!ov.hidden)close();
     if(e.key==='Tab'&&!ov.hidden){const f=[x,...(frame?[frame]:[])];const i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}});
+})();
+
+/* ---------- loading line ---------- */
+(function(){
+  const ld=document.getElementById('ld'),bar=ld.querySelector('i');document.documentElement.classList.add('loading');
+  const img=src=>{const i=new Image();i.src=src;return i};
+  const imgs=['graves_color.jpg','graves_depth.png','phone_frame.png'].map(img);
+  const vr=x=>x?Math.min(1,(x.readyState||0)/3):0;
+  const clipV=()=>clips.map(c=>c.v).filter(Boolean);
+  const items=[   // [weight, progress 0..1]
+    [4,()=>pendP],
+    [.5,()=>document.fonts?(document.fonts.status==='loaded'?1:0):1],
+    [1.5,()=>imgs.filter(i=>i.complete).length/imgs.length],
+    [1.5,()=>{const a=clipV();return a.length?a.reduce((s,x)=>s+vr(x),0)/a.length:1}],
+    [1,()=>vr(phVid)],
+    [1,()=>Math.min(1,bpOk.filter(Boolean).length/40)],
+    [.5,()=>vr(stepVid[0])],
+  ];
+  const W=items.reduce((s,x)=>s+x[0],0),t0=performance.now();let shown=0,end=false;
+  function finish(){if(end)return;end=true;bar.style.setProperty('--p',1);
+    setTimeout(()=>{ld.classList.add('done');document.documentElement.classList.remove('loading')},380)}
+  (function poll(){if(end)return;
+    let p=0;for(const [w,f] of items){try{p+=w*clamp(f())}catch(e){p+=w}}p/=W;
+    shown=Math.max(shown,p);bar.style.setProperty('--p',shown.toFixed(3));ld.setAttribute('aria-valuenow',Math.round(shown*100));
+    const el=performance.now()-t0;
+    if((shown>.995&&el>500)||el>20000)finish();else setTimeout(poll,120)})();   // never block for more than 20 s
+})();
+
+/* ---------- spirit autopilot: on touch screens / portrait there is no cursor, so the spirit gets a wandering target ---------- */
+(function(){
+  const noCursor=()=>matchMedia('(hover: none), (max-aspect-ratio: 1/1)').matches;
+  let realMouse=-1e9;
+  addEventListener('pointermove',e=>{if(e.isTrusted&&e.pointerType==='mouse')realMouse=performance.now()},{passive:true,capture:true});
+  (function fly(t){
+    const vis=+stageD.style.opacity>.05&&spiritP>.55;            // only once it has started following
+    if(vis&&noCursor()&&t-realMouse>3000&&!window.demoOpen){
+      const a=t*.001,W=innerWidth,H=innerHeight;
+      // a slow, uneven loop around the middle of the screen (where the final text sits)
+      const x=W*(.5+.36*Math.sin(a*.47)+.06*Math.sin(a*1.31+.7)), y=H*(.5+.26*Math.sin(a*.71+1.1)+.05*Math.cos(a*1.7));
+      dispatchEvent(new PointerEvent('pointermove',{clientX:x,clientY:y,pointerType:'mouse',bubbles:true}));
+    }
+    requestAnimationFrame(fly);
+  })(performance.now());
 })();
 layout();onScroll();
 initGL().catch(e=>console.error('graveyard scene failed',e));
