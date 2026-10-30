@@ -214,10 +214,12 @@ button{font:inherit;color:inherit;letter-spacing:inherit}
 .ruler::-webkit-scrollbar{display:none}
 .ruler.dragging{scroll-snap-type:none;cursor:grabbing}
 /* side padding lets the first and the last tick reach the centre */
-.ruler .track{display:flex;align-items:flex-end;height:32px;width:max-content;padding:0 154.5px}
+.ruler .track{display:flex;align-items:flex-end;height:32px;width:max-content;padding:0}
+/* side room as spacer items, not padding: Safari drops the trailing padding of a max-content track, so the ruler stopped short of 20 */
+.ruler .track::before,.ruler .track::after{content:'';flex:0 0 154.5px}
 .ruler i{flex:0 0 20px;display:flex;justify-content:center;align-items:flex-end;height:100%;
   scroll-snap-align:center;cursor:pointer}
-.ruler i::before{content:'';display:block;width:4px;height:17px;border-radius:2px;background:#C9C9C9}
+.ruler i::before{content:'';display:block;width:4px;height:17px;border-radius:2px;background:#000}
 .ruler i.long::before{height:32px}
 
 /* name */
@@ -286,6 +288,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit}
 #start.on .btn{pointer-events:auto}
 #final .render{height:416px;width:100%;flex:0 0 auto;transition:height .5s ease}
 #final .col.phyl .render{height:356px}
+#final .col.phyl{padding-bottom:300px}   /* enough room to scroll the last rows above the pinned button */
 #final .col.phyl .body{margin-top:-16px}
 #final .tabs{display:flex;gap:8px;pointer-events:auto}
 #final .tabs .chip{padding:16px 24px}

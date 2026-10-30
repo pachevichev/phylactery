@@ -203,9 +203,10 @@ html.loading body>*:not(.ld){visibility:hidden}
   .awake{font-size:clamp(30px,10vw,64px)}
   /* mockup: phone centred, chips under it, four heads as a quiet row at the bottom */
   .words{left:0;right:0;top:calc(var(--hdrH) + 14px);align-items:center}.words button{font-size:clamp(28px,10vw,64px);text-align:center}
-  .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(var(--hdrH) + 30px + 34vw)}
-  .phone{height:min(calc(calc(var(--vh,1vh)*100) - var(--hdrH) - 34vw - 150px),calc(84vw * 1686 / 830))}
-  .mob-demo{display:block;margin-top:calc(var(--vh,1vh)*2.2);font-size:15px;padding:1em 2em}
+  .stage-c .center{position:static}
+  .stage-c .center .phone{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--hdrH) + 26px + 34vw)}
+  .phone{height:min(calc(calc(var(--vh,1vh)*100) - var(--hdrH) - 34vw - 124px),calc(88vw * 1686 / 830))}
+  .mob-demo{display:block;position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%);font-size:15px;padding:1em 2em}
   .phone .shade,.phone .try{display:none}
   .chips{font-size:12px}
   .chips button{padding:.8em 1.1em}
@@ -437,6 +438,8 @@ function setNav(u){
 function onScroll(){
   const y=scrollY;
   let u=(y-endA)/VH();
+  if(MOBQ()){const hb=document.querySelector('.hdr').getBoundingClientRect().bottom;
+    copy.style.clipPath=`inset(${Math.max(0,hb-copy.getBoundingClientRect().top)}px 0 0 0)`}else copy.style.clipPath='';
   setNav(u);
   target=clamp(y/endA)*Math.max(dur-0.05,0);
   // mobile: the copy scrolls over the pendant, so the pendant steps back as the text climbs
@@ -1414,5 +1417,5 @@ layout();onScroll();
 initGL().catch(e=>console.error('graveyard scene failed',e));
 requestAnimationFrame(tick);
 </script>
-
+</body>
 </html>
