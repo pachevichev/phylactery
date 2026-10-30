@@ -29,13 +29,13 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 /* ---------- scene 1: phylactery ---------- */
 .stage-a{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1}
 .media{position:absolute;left:4vw;top:48.5%;transform:translateY(-50%);
-  width:min(78lvh,52vw);aspect-ratio:1/1;max-width:100%}
+  width:min(calc(var(--vh,1vh)*78),52vw);aspect-ratio:1/1;max-width:100%}
 .media video,.media img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;background:var(--bg)}
 .media img{transition:opacity .2s}
 .media.ready img{opacity:0}
 
 .copy{position:relative;z-index:2;margin:0 6vw 0 auto;width:min(46vw,100%);
-  padding-block:15lvh 18lvh;
+  padding-block:calc(var(--vh,1vh)*15) calc(var(--vh,1vh)*18);
   font-family:var(--display);font-weight:700;text-align:right;
   font-size:clamp(28px,5.4vw,120px);line-height:1.1;letter-spacing:.01em}
 .copy p{margin:0}
@@ -45,12 +45,12 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .copy .clip{display:inline-block;vertical-align:baseline;height:var(--clip-h);width:var(--clip-w);margin-right:.08em;background:#000;image-rendering:pixelated}
 
 /* ---------- scene 2: graveyard ---------- */
-.track-b{height:1780lvh}                 /* scroll length of scenes 2–3: the page ends at u = 9.8, just after step 3 fills */
+.track-b{height:calc(var(--vh,1vh)*1780)}                 /* scroll length of scenes 2–3: the page ends at u = 9.8, just after step 3 fills */
 .stage-b{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;z-index:0;opacity:0}
-.frame{position:relative;flex:none;height:110lvh;width:calc(110lvh * 3870 / 2416);aspect-ratio:3870/2416;will-change:transform}   /* bigger than the window: the stones fill the height */
+.frame{position:relative;flex:none;height:calc(var(--vh,1vh)*110);width:calc(calc(var(--vh,1vh)*110) * 3870 / 2416);aspect-ratio:3870/2416;will-change:transform}   /* bigger than the window: the stones fill the height */
 .frame canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .awake{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding-inline:16px;text-align:center;text-wrap:balance;
-  font-family:var(--display);font-weight:700;font-size:clamp(34px,min(7.6vw,13lvh),190px);line-height:1.05;letter-spacing:.01em;color:var(--fg)}
+  font-family:var(--display);font-weight:700;font-size:clamp(34px,min(7.6vw,calc(var(--vh,1vh)*13)),190px);line-height:1.05;letter-spacing:.01em;color:var(--fg)}
 
 /* ---------- scene 3: phone ---------- */
 /* ---------- new section: backpack (scroll-scrubbed dither) + pendant on the phone (loop) ---------- */
@@ -59,7 +59,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .stage-n .scr{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;padding-inline:4vw 5vw;will-change:transform}
 .stage-n .scr{transition:opacity .35s ease,visibility 0s linear 0s}
 .stage-n .scr.off{opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
-.stage-n .nt{align-self:start;margin:7lvh 0 0;font-family:var(--display);font-weight:700;font-size:clamp(28px,5.4vw,120px);line-height:1.1;letter-spacing:.01em;color:var(--dim)}
+.stage-n .nt{align-self:start;margin:calc(var(--vh,1vh)*7) 0 0;font-family:var(--display);font-weight:700;font-size:clamp(28px,5.4vw,120px);line-height:1.1;letter-spacing:.01em;color:var(--dim)}
 .stage-n .nt .ch{transition:color .12s linear}
 .stage-n .nt .ch.f{color:var(--fg)}
 .stage-n .nt{color:var(--fg)}
@@ -70,15 +70,15 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 /* creature heads (WebGL, relit through depth-normals) sit in four slots, two on each side of the phone */
 .stage-c .heads{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stage-c .dz{position:absolute;z-index:3;pointer-events:none;opacity:0;image-rendering:pixelated}
-.stage-c .hslot{position:absolute;top:35lvh;width:17vw;height:30lvh}
+.stage-c .hslot{position:absolute;top:calc(var(--vh,1vh)*35);width:17vw;height:calc(var(--vh,1vh)*30)}
 /* character cards drift up with the scroll and leave through the top edge */
 .names{position:absolute;inset:0;pointer-events:none;opacity:.16}   /* background layer: behind the heads and the phone */
 .nm{position:absolute;top:0;margin:0;font-family:var(--label);font-weight:500;font-size:clamp(15px,1.6vw,32px);line-height:1.3;letter-spacing:.01em;
   color:var(--fg);white-space:nowrap;will-change:transform}
-.stage-c .center{position:absolute;right:14vw;top:9lvh;display:flex;flex-direction:column;align-items:center}
+.stage-c .center{position:absolute;right:14vw;top:calc(var(--vh,1vh)*9);display:flex;flex-direction:column;align-items:center}
 /* the three steps as big words on the left: the active one fills letter by letter with the scroll; click = jump to it */
-.words{position:absolute;left:12.3vw;top:8lvh;display:flex;flex-direction:column;align-items:flex-start;pointer-events:auto}
-.words button{font-family:var(--display);font-weight:700;font-size:clamp(40px,min(5.8vw,10.5lvh),140px);line-height:1.12;letter-spacing:.01em;
+.words{position:absolute;left:12.3vw;top:calc(var(--vh,1vh)*8);display:flex;flex-direction:column;align-items:flex-start;pointer-events:auto}
+.words button{font-family:var(--display);font-weight:700;font-size:clamp(40px,min(5.8vw,calc(var(--vh,1vh)*10.5)),140px);line-height:1.12;letter-spacing:.01em;
   color:var(--dim);background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;white-space:nowrap}
 .words .ch{transition:color .12s linear}
 .words .ch.f{color:var(--fg)}
@@ -92,7 +92,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .chips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .chips .pill{position:absolute;top:.35em;bottom:.35em;left:0;width:0;border-radius:999px;background:var(--accent);transition:transform .45s cubic-bezier(.3,.7,.2,1),width .45s cubic-bezier(.3,.7,.2,1)}
 /* ---------- final screen: "it's all in your phylactery" + the spirit flying around it ---------- */
-.stage-e{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(20px,3.2lvh,44px);visibility:hidden;pointer-events:none}
+.stage-e{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(20px,calc(var(--vh,1vh)*3.2),44px);visibility:hidden;pointer-events:none}
 /* accent pill used on the final line and on the mockup hover */
 .demo{font-family:var(--display);font-weight:700;font-size:clamp(14px,1.5vw,26px);letter-spacing:.02em;color:#111;background:var(--accent);border:0;border-radius:999px;padding:1em 1.8em;cursor:pointer;white-space:nowrap;pointer-events:auto;transition:transform .2s ease,filter .2s ease}
 .mob-demo{display:none}
@@ -112,7 +112,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .about a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 /* sticky section switcher at the top: 01 hero · 02 phone & backpack + graveyard · 03 mockup + final line · 04 credits */
 /* header: sound toggle on the left, section numbers spread across the rest */
-.hdr{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:3vw;padding:2.2lvh 6vw 0 5.7vw;pointer-events:none}
+.hdr{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:3vw;padding:calc(var(--vh,1vh)*2.2) 6vw 0 5.7vw;pointer-events:none}
 .secnav{flex:1;display:flex;justify-content:space-between;pointer-events:none}
 .snd{pointer-events:auto;flex:none;width:clamp(34px,2.4vw,46px);height:clamp(34px,2.4vw,46px);margin-left:-.3em;padding:.12em;border:0;background:none;color:#7a7a7a;cursor:pointer;transition:color .3s ease}
 .snd svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
@@ -131,7 +131,7 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-ov[hidden]{display:none}
 .demo-ov.open{opacity:1}
 .demo-ov:focus{outline:none}
-.demo-phone{position:relative;height:min(92lvh,calc(46vw * 1686 / 830));aspect-ratio:830/1686;transform:translateY(24px) scale(.96);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.demo-phone{position:relative;height:min(calc(var(--vh,1vh)*92),calc(46vw * 1686 / 830));aspect-ratio:830/1686;transform:translateY(24px) scale(.96);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .demo-ov.open .demo-phone{transform:none}
 /* the screen sits ON the bezel image with its own clean rounded edge (the png's inner edge is ragged and shows on white app screens) */
 .demo-screen{position:absolute;z-index:1;left:3.86%;top:1.48%;width:92.2%;height:98%;border-radius:12.6% / 5.6%;overflow:hidden;clip-path:inset(0 round 12.6% / 5.6%);isolation:isolate;background:#000}
@@ -140,15 +140,15 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .demo-ph{position:absolute;inset:0;display:grid;place-items:center}
 @keyframes demoPulse{50%{opacity:.35}}
 .demo-ph p{position:relative;margin:0;opacity:.85;animation:demoPulse 2.4s ease-in-out infinite;font-family:var(--display);font-weight:700;font-size:clamp(16px,1.6vw,28px);line-height:1.15;text-align:center;color:var(--fg)}
-.demo-x{position:fixed;top:2.2lvh;right:5vw;z-index:2;width:40px;height:40px;padding:8px;border:0;background:none;color:#fff;cursor:pointer;transition:color .2s ease}
+.demo-x{position:fixed;top:calc(var(--vh,1vh)*2.2);right:5vw;z-index:2;width:40px;height:40px;padding:8px;border:0;background:none;color:#fff;cursor:pointer;transition:color .2s ease}
 .demo-x svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-.demo-snd{position:fixed;top:2.2lvh;left:5vw;z-index:2;width:44px;height:44px;margin:0;padding:3px;background:none;color:#fff}
+.demo-snd{position:fixed;top:calc(var(--vh,1vh)*2.2);left:5vw;z-index:2;width:44px;height:44px;margin:0;padding:3px;background:none;color:#fff}
 .demo-snd:hover,.demo-snd.on:hover{color:var(--accent)}
 .demo-x:hover{color:var(--accent)}
 .demo-x:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 html.demo-open,html.demo-open body{overflow:hidden}
 @media (max-aspect-ratio:1/1){
-  .track-b{height:1465lvh}
+  .track-b{height:calc(var(--vh,1vh)*1465)}
   /* on a phone the mockup would be a phone inside a phone: the prototype takes the whole screen */
   .demo-phone{height:100%;width:100%;aspect-ratio:auto;transform:translateY(24px)}
   .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0;clip-path:none}   /* a thin bar on top for the close button */
@@ -158,13 +158,13 @@ html.demo-open,html.demo-open body{overflow:hidden}
   .demo-ph p{font-size:24px}
 }
 /* loading: one thin line that fills while the videos, frames and images arrive */
-.ld{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#000;transition:opacity .7s ease,visibility 0s linear .7s}
+.ld{position:fixed;inset:-400px 0;z-index:200;display:grid;place-items:center;background:#000;transition:opacity .7s ease,visibility 0s linear .7s}
 .ld i{display:block;width:min(240px,50vw);height:1px;background:#262626;position:relative;overflow:hidden}
 .ld i::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:0 50%;transform:scaleX(var(--p,0));transition:transform .35s ease}
 .ld.done{opacity:0;visibility:hidden}
 html.loading,html.loading body{overflow:hidden}
 /* stages keep one height while the mobile browser bars slide in and out (no jumping/resizing on scroll) */
-.stage-a,.stage-b,.stage-c,.stage-d,.stage-e,.stage-f,.stage-n{bottom:auto;height:100lvh}
+.stage-a,.stage-b,.stage-c,.stage-d,.stage-e,.stage-f,.stage-n{bottom:auto;height:calc(var(--vh,1vh)*100)}
 /* hover on the phone: the screen dims and a "try it" button appears */
 .phone{pointer-events:auto}
 .phone .shade{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;background:rgba(0,0,0,.55);
@@ -175,7 +175,7 @@ html.loading,html.loading body{overflow:hidden}
 .phone:hover .shade,.phone:focus-within .shade{opacity:1}
 .phone:hover .try,.phone:focus-within .try{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
 .phone .try:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.phone{position:relative;height:min(84lvh,calc(30vw * 1686 / 830));aspect-ratio:830/1686}
+.phone{position:relative;height:min(calc(var(--vh,1vh)*84),calc(30vw * 1686 / 830));aspect-ratio:830/1686}
 .phone .screen{position:absolute;left:1.69%;top:1.48%;width:96.6%;height:98.05%;border-radius:13.5% / 6.6%;overflow:hidden;background:#000}
 .phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s ease}
 .phone video.on{opacity:1}
@@ -184,25 +184,26 @@ html.loading,html.loading body{overflow:hidden}
 @media (max-aspect-ratio:1/1){
   /* ---------- mobile layout ---------- */
   .hdr{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;gap:14px;background:#000}
+  .hdr::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:400px;background:#000;pointer-events:none}
   .hdr::after{content:"";position:absolute;left:0;right:0;top:100%;height:18px;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
   .secnav button{font-size:13px;padding:.4em .1em}
   .snd{width:42px;height:42px;margin-left:-8px;padding:2px}
   /* hero: the pendant on top, the copy scrolls up over a fade */
-  .media{left:50%;top:9lvh;transform:translateX(-50%);width:min(86vw,42lvh)}
-  .stage-a::after{content:"";position:absolute;inset:auto 0 0 0;height:50lvh;background:linear-gradient(transparent,var(--bg) 14%)}
-  .copy{margin:0 16px;width:auto;padding-block:56lvh 12lvh;font-size:clamp(26px,8.6vw,56px);text-align:left}
+  .media{left:50%;top:calc(var(--vh,1vh)*9);transform:translateX(-50%);width:min(86vw,calc(var(--vh,1vh)*42))}
+  .stage-a::after{content:"";position:absolute;inset:auto 0 0 0;height:calc(var(--vh,1vh)*50);background:linear-gradient(transparent,var(--bg) 14%)}
+  .copy{margin:0 16px;width:auto;padding-block:calc(var(--vh,1vh)*56) calc(var(--vh,1vh)*12);font-size:clamp(26px,8.6vw,56px);text-align:left}
   :root{--clip-w:2.2em}
   /* phone & backpack: heading on top, one object at a time below (see placeViewsMob) */
   .stage-n .scr{display:block;padding:0}
-  .stage-n .nt{position:absolute;left:16px;right:16px;top:9lvh;margin:0;font-size:clamp(28px,9vw,60px)}
+  .stage-n .nt{position:absolute;left:16px;right:16px;top:calc(var(--vh,1vh)*9);margin:0;font-size:clamp(28px,9vw,60px)}
   .stage-n canvas{position:absolute}
   /* graveyard */
   .awake{font-size:clamp(30px,10vw,64px)}
   /* mockup: phone centred, chips under it, four heads as a quiet row at the bottom */
-  .words{left:0;right:0;top:9lvh;align-items:center}.words button{font-size:clamp(28px,10vw,64px);text-align:center}
-  .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(12lvh + 33vw)}
-  .phone{height:min(calc(84lvh - 33vw - 78px),calc(84vw * 1686 / 830))}
-  .mob-demo{display:block;margin-top:2.2lvh;font-size:15px;padding:1em 2em}
+  .words{left:0;right:0;top:calc(var(--vh,1vh)*9);align-items:center}.words button{font-size:clamp(28px,10vw,64px);text-align:center}
+  .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(calc(var(--vh,1vh)*12) + 33vw)}
+  .phone{height:min(calc(calc(var(--vh,1vh)*84) - 33vw - 78px),calc(84vw * 1686 / 830))}
+  .mob-demo{display:block;margin-top:calc(var(--vh,1vh)*2.2);font-size:15px;padding:1em 2em}
   .phone .shade,.phone .try{display:none}
   .chips{font-size:12px}
   .chips button{padding:.8em 1.1em}
@@ -214,7 +215,7 @@ html.loading,html.loading body{overflow:hidden}
 }
 @media (prefers-reduced-motion:reduce){ .media img{transition:none} }
 /* temporary tuning panel */
-.tune{position:fixed;left:16px;bottom:16px;z-index:20;width:min(340px,calc(100vw - 32px));max-height:44lvh;overflow:auto;
+.tune{position:fixed;left:16px;bottom:16px;z-index:20;width:min(340px,calc(100vw - 32px));max-height:calc(var(--vh,1vh)*44);overflow:auto;
   background:rgba(12,12,12,.86);border:1px solid rgba(255,255,255,.14);border-radius:10px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   font:11px/1.3 ui-monospace,"SF Mono",Menlo,monospace;color:#cfcfcf}
 .tune[hidden]{display:none}
@@ -237,6 +238,14 @@ html.loading,html.loading body{overflow:hidden}
 .tune output{font-size:10px}
 .tune .foot{display:grid;gap:8px;padding:0 12px 12px}
 </style>
+<script>
+/* one fixed "screen height" for the whole page. Phone browsers change the visible height while their bars slide in
+   and out during a scroll; on touch devices this value is taken once and only renewed when the width changes
+   (rotation), so nothing on the page resizes or jumps mid-scroll. */
+(function(){const d=document.documentElement,touch=matchMedia('(hover: none)').matches;let w=0;
+  function set(){if(touch&&innerWidth===w)return;w=innerWidth;window.__VH=Math.max(innerHeight,d.clientHeight);d.style.setProperty('--vh',(window.__VH/100)+'px')}
+  set();addEventListener('resize',set);})();
+</script>
 
 <div class="stage-b" id="stageB">
   <div class="frame" id="frame">
@@ -335,10 +344,7 @@ html.loading,html.loading body{overflow:hidden}
      < 8.4     step 1 (connect)   8.4–10.2 step 2 (shape the character)   10.2–12.0 step 3 (seal and keep)
      9.2–9.8  hold on the last step, then the page ends (the phone → spirit scene was removed)
 */
-// stable viewport height: 100lvh (the large viewport) does not change when mobile browser bars collapse
-const vhProbe=document.createElement('div');vhProbe.style.cssText='position:fixed;top:0;left:-10px;width:1px;height:100lvh;visibility:hidden;pointer-events:none';
-document.body.appendChild(vhProbe);
-function VH(){return vhProbe.offsetHeight||window.innerHeight}
+function VH(){return window.__VH||window.innerHeight}
 const clamp=(x,a=0,b=1)=>Math.min(Math.max(x,a),b);
 const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -481,7 +487,7 @@ function onScroll(){
   fillWords(u);
 
 }
-addEventListener('scroll',onScroll,{passive:true});
+let scrPend=false;addEventListener('scroll',()=>{if(scrPend)return;scrPend=true;requestAnimationFrame(()=>{scrPend=false;onScroll()})},{passive:true});
 addEventListener('resize',()=>{layout();onScroll();sizeGL();placePill()});
 document.fonts&&document.fonts.ready.then(()=>{layout();onScroll();placePill()});
 
@@ -595,7 +601,7 @@ async function initGL(){
 }
 function sizeGL(){
   if(!gl)return;
-  const r=frame.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
+  const r=frame.getBoundingClientRect(),dpr=matchMedia('(hover: none)').matches?1:Math.min(devicePixelRatio||1,2);
   const W=Math.max(1,Math.round(r.width*dpr)),H=Math.max(1,Math.round(r.height*dpr));
   if(cvs.width!==W||cvs.height!==H){cvs.width=W;cvs.height=H}
 }
