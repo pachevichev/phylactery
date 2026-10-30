@@ -153,8 +153,8 @@ html.demo-open,html.demo-open body{overflow:hidden}
   .demo-phone{height:100%;width:100%;aspect-ratio:auto;transform:translateY(24px)}
   .demo-screen{left:0;right:0;top:56px;bottom:0;width:auto;height:auto;border-radius:0;clip-path:none}   /* a thin bar on top for the close button */
   .demo-bezel{display:none}
-  .demo-x{top:8px;right:10px;width:40px;height:40px}
-  .demo-snd{top:6px;left:8px;width:46px;height:46px;padding:2px}
+  .demo-x{top:8px;right:10px;width:40px;height:40px;padding:8px}
+  .demo-snd{top:6px;left:12px;width:44px;height:44px;padding:6px}
   .demo-ph p{font-size:24px}
 }
 /* loading: one thin line that fills while the videos, frames and images arrive */
@@ -163,6 +163,7 @@ html.demo-open,html.demo-open body{overflow:hidden}
 .ld i::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:0 50%;transform:scaleX(var(--p,0));transition:transform .35s ease}
 .ld.done{opacity:0;visibility:hidden}
 html.loading,html.loading body{overflow:hidden}
+html.loading body>*:not(.ld){visibility:hidden}
 /* stages keep one height while the mobile browser bars slide in and out (no jumping/resizing on scroll) */
 .stage-a,.stage-b,.stage-c,.stage-d,.stage-e,.stage-f,.stage-n{bottom:auto;height:calc(var(--vh,1vh)*100)}
 /* hover on the phone: the screen dims and a "try it" button appears */
@@ -183,26 +184,27 @@ html.loading,html.loading body{overflow:hidden}
 
 @media (max-aspect-ratio:1/1){
   /* ---------- mobile layout ---------- */
+  :root{--hdrH:calc(env(safe-area-inset-top) + 84px)}
   .hdr{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;gap:14px;background:#000}
   .hdr::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:400px;background:#000;pointer-events:none}
   .hdr::after{content:"";position:absolute;left:0;right:0;top:100%;height:18px;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
   .secnav button{font-size:13px;padding:.4em .1em}
   .snd{width:42px;height:42px;margin-left:-8px;padding:2px}
   /* hero: the pendant on top, the copy scrolls up over a fade */
-  .media{left:50%;top:calc(var(--vh,1vh)*9);transform:translateX(-50%);width:min(86vw,calc(var(--vh,1vh)*42))}
+  .media{left:50%;top:calc(var(--hdrH) + 8px);transform:translateX(-50%);width:min(86vw,calc(var(--vh,1vh)*42))}
   .stage-a::after{content:"";position:absolute;inset:auto 0 0 0;height:calc(var(--vh,1vh)*50);background:linear-gradient(transparent,var(--bg) 14%)}
   .copy{margin:0 16px;width:auto;padding-block:calc(var(--vh,1vh)*56) calc(var(--vh,1vh)*12);font-size:clamp(26px,8.6vw,56px);text-align:left}
   :root{--clip-w:2.2em}
   /* phone & backpack: heading on top, one object at a time below (see placeViewsMob) */
   .stage-n .scr{display:block;padding:0}
-  .stage-n .nt{position:absolute;left:16px;right:16px;top:calc(var(--vh,1vh)*9);margin:0;font-size:clamp(28px,9vw,60px)}
+  .stage-n .nt{position:absolute;left:16px;right:16px;top:calc(var(--hdrH) + 14px);margin:0;font-size:clamp(28px,9vw,60px)}
   .stage-n canvas{position:absolute}
   /* graveyard */
   .awake{font-size:clamp(30px,10vw,64px)}
   /* mockup: phone centred, chips under it, four heads as a quiet row at the bottom */
-  .words{left:0;right:0;top:calc(var(--vh,1vh)*9);align-items:center}.words button{font-size:clamp(28px,10vw,64px);text-align:center}
-  .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(calc(var(--vh,1vh)*12) + 33vw)}
-  .phone{height:min(calc(calc(var(--vh,1vh)*84) - 33vw - 78px),calc(84vw * 1686 / 830))}
+  .words{left:0;right:0;top:calc(var(--hdrH) + 14px);align-items:center}.words button{font-size:clamp(28px,10vw,64px);text-align:center}
+  .stage-c .center{right:auto;left:50%;transform:translateX(-50%);top:calc(var(--hdrH) + 30px + 34vw)}
+  .phone{height:min(calc(calc(var(--vh,1vh)*100) - var(--hdrH) - 34vw - 150px),calc(84vw * 1686 / 830))}
   .mob-demo{display:block;margin-top:calc(var(--vh,1vh)*2.2);font-size:15px;padding:1em 2em}
   .phone .shade,.phone .try{display:none}
   .chips{font-size:12px}
@@ -410,7 +412,14 @@ fetch(file).then(async r=>{if(!r.ok)throw 0;const n=+r.headers.get('content-leng
   return new Blob(parts,{type:'video/'+file.split('.').pop()})})
  .then(b=>{pendP=1;v.src=URL.createObjectURL(b)}).catch(()=>{pendP=1;v.src=file});
 v.addEventListener('loadedmetadata',()=>{dur=v.duration;v.pause();ready=true;onScroll();cur=target;v.currentTime=cur});
-v.addEventListener('seeked',()=>media.classList.add('ready'),{once:true});
+let vPrimed=false;
+function primeV(){if(vPrimed||!v.src)return;const p=v.play();if(p&&p.then)p.then(()=>{v.pause();vPrimed=true;v.currentTime=cur+0.001}).catch(()=>{});else{v.pause();vPrimed=true}}
+v.addEventListener('loadedmetadata',primeV);
+['touchstart','pointerdown','click'].forEach(e=>addEventListener(e,()=>{if(!vPrimed)primeV()},{passive:true,capture:true}));   // low-power mode: prime on first touch
+// show the video (hide the poster) only once a frame is actually on screen
+function markReady(){media.classList.add('ready')}
+if('requestVideoFrameCallback' in HTMLVideoElement.prototype){v.requestVideoFrameCallback(markReady)}
+else v.addEventListener('seeked',()=>{if(vPrimed||v.readyState>=2)markReady()});
 
 function layout(){
   endA=Math.max(1,copy.offsetTop+copy.offsetHeight-VH());
