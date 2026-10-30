@@ -202,11 +202,11 @@ html.loading body>*:not(.ld){visibility:hidden}
   /* graveyard */
   .awake{font-size:clamp(30px,10vw,64px)}
   /* mockup: phone centred, chips under it, four heads as a quiet row at the bottom */
-  .words{left:0;right:0;top:calc(var(--hdrH) + 14px);align-items:center}.words button{font-size:clamp(28px,10vw,64px);text-align:center}
+  .words{left:0;right:0;top:calc(var(--hdrH) + 14px);align-items:center}.words button{font-size:clamp(24px,7.4vw,50px);text-align:center}
   .stage-c .center{position:static}
-  .stage-c .center .phone{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--hdrH) + 26px + 34vw)}
-  .phone{height:min(calc(calc(var(--vh,1vh)*100) - var(--hdrH) - 34vw - 124px),calc(88vw * 1686 / 830))}
-  .mob-demo{display:block;position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%);font-size:15px;padding:1em 2em}
+  .stage-c .center .phone{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--hdrH) + 32px + 24vw)}
+  .phone{height:min(calc(calc(var(--vh,1vh)*100) - var(--hdrH) - 24vw - 126px),calc(88vw * 1686 / 830))}
+  .mob-demo{display:block;position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 22px);transform:translateX(-50%);font-size:15px;padding:.9em 2em}
   .phone .shade,.phone .try{display:none}
   .chips{font-size:12px}
   .chips button{padding:.8em 1.1em}
@@ -246,7 +246,7 @@ html.loading body>*:not(.ld){visibility:hidden}
    and out during a scroll; on touch devices this value is taken once and only renewed when the width changes
    (rotation), so nothing on the page resizes or jumps mid-scroll. */
 (function(){const d=document.documentElement,touch=matchMedia('(hover: none)').matches;let w=0;
-  function set(){if(touch&&innerWidth===w)return;w=innerWidth;window.__VH=Math.max(innerHeight,d.clientHeight);d.style.setProperty('--vh',(window.__VH/100)+'px')}
+  function set(){if(touch&&innerWidth===w){const h=Math.max(innerHeight,d.clientHeight);if(!(h>window.__VH&&scrollY<innerHeight*2))return;window.__VH=h;d.style.setProperty('--vh',(h/100)+'px');dispatchEvent(new Event('vhgrow'));return}w=innerWidth;window.__VH=Math.max(innerHeight,d.clientHeight);d.style.setProperty('--vh',(window.__VH/100)+'px')}
   set();addEventListener('resize',set);})();
 </script>
 
@@ -416,13 +416,14 @@ v.addEventListener('loadedmetadata',()=>{dur=v.duration;v.pause();ready=true;onS
 let vPrimed=false;
 function primeV(){if(vPrimed||!v.src)return;const p=v.play();if(p&&p.then)p.then(()=>{v.pause();vPrimed=true;v.currentTime=cur+0.001}).catch(()=>{});else{v.pause();vPrimed=true}}
 v.addEventListener('loadedmetadata',primeV);
-['touchstart','pointerdown','click'].forEach(e=>addEventListener(e,()=>{if(!vPrimed)primeV()},{passive:true,capture:true}));   // low-power mode: prime on first touch
+['pointerdown','pointerup','touchstart','touchend','click','keydown'].forEach(e=>addEventListener(e,()=>{if(!vPrimed)primeV()},{passive:true,capture:true}));   // low-power mode: prime on first touch
 // show the video (hide the poster) only once a frame is actually on screen
 function markReady(){media.classList.add('ready')}
 if('requestVideoFrameCallback' in HTMLVideoElement.prototype){v.requestVideoFrameCallback(markReady)}
 else v.addEventListener('seeked',()=>{if(vPrimed||v.readyState>=2)markReady()});
 
 function layout(){
+  const hb=document.querySelector('.hdr').getBoundingClientRect().bottom;document.documentElement.style.setProperty('--hdrH',(hb+36)+'px');
   endA=Math.max(1,copy.offsetTop+copy.offsetHeight-VH());
 }
 
@@ -1417,5 +1418,3 @@ layout();onScroll();
 initGL().catch(e=>console.error('graveyard scene failed',e));
 requestAnimationFrame(tick);
 </script>
-</body>
-</html>
