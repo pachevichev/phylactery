@@ -112,8 +112,9 @@ html,body{background:var(--bg);color:var(--fg);margin:0}
 .about a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 /* sticky section switcher at the top: 01 hero · 02 phone & backpack + graveyard · 03 mockup + final line · 04 credits */
 /* header: sound toggle on the left, section numbers spread across the rest */
-.hdr{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:3vw;padding:calc(var(--vh,1vh)*2.2) 6vw 0 5.7vw;pointer-events:none}
-.secnav{flex:1;display:flex;justify-content:space-between;pointer-events:none}
+.hdr{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:0;padding:calc(var(--vh,1vh)*2.2) 6vw 0 5.7vw;pointer-events:none}
+/* the sound icon is one more item in the row: icon and 01-04 share the same spacing at every width */
+.hdr{justify-content:space-between}.secnav{display:contents}
 .snd{pointer-events:auto;flex:none;width:clamp(34px,2.4vw,46px);height:clamp(34px,2.4vw,46px);margin-left:-.3em;padding:.12em;border:0;background:none;color:#7a7a7a;cursor:pointer;transition:color .3s ease}
 .snd svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .snd .spk{fill:currentColor;stroke:none}
@@ -185,11 +186,11 @@ html.loading body>*:not(.ld){visibility:hidden}
 @media (max-aspect-ratio:1/1){
   /* ---------- mobile layout ---------- */
   :root{--hdrH:calc(env(safe-area-inset-top) + 84px)}
-  .hdr{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;gap:14px;background:#000}
+  .hdr{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;gap:0;background:#000}
   .hdr::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:400px;background:#000;pointer-events:none}
   .hdr::after{content:"";position:absolute;left:0;right:0;top:100%;height:18px;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
   .secnav button{font-size:13px;padding:.4em .1em}
-  .snd{width:42px;height:42px;margin-left:-8px;padding:2px}
+  .snd{width:42px;height:42px;margin-left:-8px;margin-right:-5px;padding:2px}
   /* hero: the pendant on top, the copy scrolls up over a fade */
   .media{left:50%;top:calc(var(--hdrH) + 8px);transform:translateX(-50%);width:min(86vw,calc(var(--vh,1vh)*42))}
   .stage-a::after{content:"";position:absolute;inset:auto 0 0 0;height:calc(var(--vh,1vh)*50);background:linear-gradient(transparent,var(--bg) 14%)}
