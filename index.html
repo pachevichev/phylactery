@@ -3,16 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="A phylactery for your D&D character — a concept accessory that binds your hero's soul to your phone.">
+<meta name="description" content="Phylactery — a concept D&amp;D accessory that keeps your character's soul and binds it to your phone. A design study made with AI.">
 <meta name="theme-color" content="#000000">
-<meta property="og:title" content="Phylactery — a soul for your D&D character">
-<meta property="og:description" content="A concept accessory for D&D: bind it to your phone, shape the soul within, carry it with you.">
-<meta property="og:image" content="poster.webp">
+<link rel="canonical" href="https://phylactery.site/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Phylactery">
+<meta property="og:url" content="https://phylactery.site/">
+<meta property="og:title" content="Phylactery — a vessel for your DnD character">
+<meta property="og:description" content="A concept D&amp;D accessory: bind it to your phone, shape the soul within, carry it with you. Design study · made with AI.">
+<meta property="og:image" content="https://phylactery.site/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Phylactery pendant — a vessel for your DnD character">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://phylactery.site/og.jpg">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Phylactery</title>
+<title>Phylactery — a vessel for your DnD character</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Livvic:wght@500&display=swap">
@@ -244,11 +253,21 @@ html.loading body>*:not(.ld){visibility:hidden}
 .tune input[type=color]{width:100%;height:20px;border:0;background:none;padding:0}
 .tune output{font-size:10px}
 .tune .foot{display:grid;gap:8px;padding:0 12px 12px}
+/* fallback without WebGL2: stills in place of the dithered canvases */
+html.nogl #g{background:url(graves_color.jpg) center/cover no-repeat;filter:grayscale(1) contrast(1.15) brightness(.75)}
+html.nogl #bp{background:url(bpframes_xl/030.jpg) center/contain no-repeat;filter:grayscale(1) contrast(1.2)}
+html.nogl #ph{background:url(fb_phonepend_hd.jpg) center/contain no-repeat;filter:grayscale(1) contrast(1.2)}
+html.nogl canvas.clip{background:center/cover no-repeat;filter:grayscale(1) contrast(1.3)}
+html.nogl canvas.clip[data-src="drow-clip.mp4"]{background-image:url(fb_drow-clip.jpg)}
+html.nogl canvas.clip[data-src="knight-clip.mp4"]{background-image:url(fb_knight-clip.jpg)}
+html.nogl canvas.clip[data-src="portal-clip.mp4"]{background-image:url(fb_portal-clip.jpg)}
 </style>
 <script>
 /* one fixed "screen height" for the whole page. Phone browsers change the visible height while their bars slide in
    and out during a scroll; on touch devices this value is taken once and only renewed when the width changes
    (rotation), so nothing on the page resizes or jumps mid-scroll. */
+/* no WebGL2 (old devices, blocked GPUs): every dithered canvas falls back to a still frame (see html.nogl) */
+try{if(!document.createElement('canvas').getContext('webgl2'))document.documentElement.classList.add('nogl')}catch(e){document.documentElement.classList.add('nogl')}
 (function(){const d=document.documentElement,touch=matchMedia('(hover: none)').matches;let w=0;
   function set(){if(touch&&innerWidth===w){const h=Math.max(innerHeight,d.clientHeight);if(!(h>window.__VH&&scrollY<innerHeight*2))return;window.__VH=h;d.style.setProperty('--vh',(h/100)+'px');dispatchEvent(new Event('vhgrow'));return}w=innerWidth;window.__VH=Math.max(innerHeight,d.clientHeight);d.style.setProperty('--vh',(window.__VH/100)+'px')}
   set();addEventListener('resize',set);})();
@@ -305,8 +324,8 @@ html.loading body>*:not(.ld){visibility:hidden}
   <div class="phone">
     <div class="screen">
       <video class="on" src="step1.mp4" poster="step1_poster.webp" muted loop playsinline preload="auto" aria-label="Подключение филактерии к телефону"></video>
-      <video src="step2.mp4" poster="step2_poster.webp" muted loop playsinline preload="auto" aria-label="Настройка персонажа"></video>
-      <video src="step3.mp4" poster="step3_poster.webp" muted loop playsinline preload="auto" aria-label="Создание и хранение персонажа в филактерии"></video>
+      <video src="step2.mp4" poster="step2_poster.webp" muted loop playsinline preload="metadata" aria-label="Настройка персонажа"></video>
+      <video src="step3.mp4" poster="step3_poster.webp" muted loop playsinline preload="metadata" aria-label="Создание и хранение персонажа в филактерии"></video>
     </div>
     <img class="bezel" src="phone_frame.png" alt="" width="830" height="1686">
     <div class="shade"></div>
@@ -1383,14 +1402,15 @@ const DEMO_URL='app/index.html';   // the character-creation prototype (single-f
   const imgs=['graves_color.jpg','graves_depth.png','phone_frame.png'].map(img);
   const vr=x=>x?Math.min(1,(x.readyState||0)/3):0;
   const clipV=()=>clips.map(c=>c.v).filter(Boolean);
+  const meta=x=>x&&(x.readyState>=1||x.error)?1:0;
   const items=[   // [weight, progress 0..1]
     [4,()=>pendP],
     [.5,()=>document.fonts?(document.fonts.status==='loaded'?1:0):1],
     [1.5,()=>imgs.filter(i=>i.complete).length/imgs.length],
-    [1.5,()=>{const a=clipV();return a.length?a.reduce((s,x)=>s+vr(x),0)/a.length:1}],
+    [1.5,()=>{const a=clipV();return a.length?a.reduce((s,x)=>s+meta(x),0)/a.length:1}],
     [1,()=>vr(phVid)],
     [1,()=>Math.min(1,bpOk.filter(Boolean).length/40)],
-    [.5,()=>vr(stepVid[0])],
+    [.5,()=>meta(stepVid[0])],
   ];
   const W=items.reduce((s,x)=>s+x[0],0),t0=performance.now();let shown=0,end=false;
   function finish(){if(end)return;end=true;bar.style.setProperty('--p',1);
@@ -1399,7 +1419,7 @@ const DEMO_URL='app/index.html';   // the character-creation prototype (single-f
     let p=0;for(const [w,f] of items){try{p+=w*clamp(f())}catch(e){p+=w}}p/=W;
     shown=Math.max(shown,p);bar.style.setProperty('--p',shown.toFixed(3));ld.setAttribute('aria-valuenow',Math.round(shown*100));
     const el=performance.now()-t0;
-    if((shown>.995&&el>500)||el>20000)finish();else setTimeout(poll,120)})();   // never block for more than 20 s
+    if((shown>.995&&el>500)||el>12000)finish();else setTimeout(poll,120)})();   // never block for more than 12 s
 })();
 
 /* ---------- spirit autopilot: on touch screens / portrait there is no cursor, so the spirit gets a wandering target ---------- */
